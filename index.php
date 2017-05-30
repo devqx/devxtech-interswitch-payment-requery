@@ -4,13 +4,15 @@
     * Query a transaction details
 	**/
 function devx_requery_payment( $txnref, $total ){
+
 $product_id 	= "6207";
-$mac_key= "CEF793CBBE838AA0CBB29B74D571113B4EA6586D3BA77E7CFA0B95E278364EFC4526ED7BD255A366CDDE11F1F607F0F844B09D93B16F7CFE87563B2272007AB3";
+$mac_key="CEF793CBBE838AA0CBB29B74D571113B4EA6586D3BA77E7CFA0B95E278364EFC4526ED7BD255A366CDDE11F1F607F0F844B09D93B16F7CFE87563B2272007AB3";
+
 
 $testmode = "yes";
 
 if ( 'yes' == $testmode ) {
-	$query_url = 'https://stageserv.interswitchng.com/test_paydirect/api/v1/gettransaction.json';
+	$query_url = 'https://sandbox.interswitchng.com/webpay/api/v1/gettransaction.json';
 } else {
 	$query_url = 'https://webpay.interswitchng.com/paydirect/api/v1/gettransaction.json';
 }
@@ -26,18 +28,7 @@ $thash 	= hash("sha512", $hashi);
 	'headers' 	=> $headers
 );*/
 			
-        $headers = array(
-		"GET /HTTP/1.1",
-		"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.1) Gecko/2008070208 Firefox/3.0.1",
-		//"Content-type:  multipart/form-data",
-		//"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", 
-		"Accept-Language: en-us,en;q=0.5",
-		//"Accept-Encoding: gzip,deflate",
-		//"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-		"Keep-Alive: 300",      
-		"Connection: keep-alive",
-		//"Hash:$thash",
-		"Hash: $thash " );
+    $headers = array( "Hash: $thash " );
                         
         $ch = curl_init($url); 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -47,15 +38,25 @@ $thash 	= hash("sha512", $hashi);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,120);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER ,false);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-                        
-		
+
 		//$response 		= wp_remote_get( $url, $args );
-		$response               = curl_exec($ch); 
-		//$response  		= json_decode($response['body'], true);
+		$response  = curl_exec($ch); 
+		//$response= json_decode($response['body'], true);
+        $err = curl_error($ch);
 		curl_close($ch);
-		$response = json_decode($response);
-	    var_export( $response) ;
+		//$response = json_decode($response);
+        
+        if($err){
+            echo $err;
+        }
+        else{
+        
+	    echo $response;
+	  
+        }
 		}
+
+//ADM40426310817
 ?>
 
 <!doctype html>
@@ -67,6 +68,7 @@ $thash 	= hash("sha512", $hashi);
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Interswitch Payment Requery</title>
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  
 </head>
 <body>
     <div class="row">
@@ -91,21 +93,19 @@ $thash 	= hash("sha512", $hashi);
                 <input type="submit" name="fetch_details" class="btn btn-primary btn-block" value="ReQuery Payment" />
             </form>
             
-
-            </ul>
-            
-        </form>
-
-        <?php 
+            <?php 
 
   //query the api when call is made 
-    if(!empty($_POST)){
-        
+   if(!empty($_POST)){
+            
         devx_requery_payment($_POST['txnref'], $_POST['total']);
+       
     }
 
     ?>
+    
     </div>
+       
     </div>
 </body>
 </html>
